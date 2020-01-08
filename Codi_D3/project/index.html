@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content "IE=edge">
+    <title>La cara oculta dels 1789 acords de pau mundial</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="../d3.min.js"></script>
+    <script src="../d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+    
+    
+</head>
+
+<body>
+  <div class="container">
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <script>
+    let myChart = document.getElementById('myChart').getContext('2d');
+
+    Chart.defaults.global.defaultFontFamily = 'Lato';
+    Chart.defaults.global.defaultFontSize = 10;
+    Chart.defaults.global.defaultFontColor = '#777';
+
+    dat=[];
+    contador=0;
+    //Càrrega de dades:
+    d3.csv('http://localhost/D3/project/pax_data_1789_agreements.csv', d3.autoType)
+        .then(function (data) {
+                //data = data.map(function (d) { return { d } });
+                //country = data.map(function (d) { return d.Con });
+            var data_count = d3.nest()
+                 .key(function (d) {
+                    return d.Reg;
+                })
+
+                .rollup(function (leaves) {
+                    return leaves.length;
+                })
+                .entries(data);
+
+                data_count.forEach(function (element) {
+                        //console.log(element);
+                    dat[contador]=element;
+                    contador=contador+1;  
+                }); 
+                dat.sort((a,b) => (a.value < b.value ? 1 : ((b.value < a.value) ? -1 : 0)));
+                //console.log(Object.values(dat))
+                let region_name = dat.map(a => a.key);
+                let region_count = dat.map(a => a.value);
+                console.log(region_count)
+        //});
+
+        let massPopChart = new Chart(myChart, {
+        type:'bar', 
+        data:{
+            labels:region_name,
+            datasets:[{
+            label:"Nombre d'acords",
+            data:region_count,
+            backgroundColor:[
+                'blue',
+                'green',
+                'red',
+                'rgba(255, 206, 86, 0.6)',
+                'orange',
+                'rgba(75, 192, 192, 0.6)',
+            ],
+            borderWidth:1,
+            borderColor:'#777',
+            hoverBorderWidth:3,
+            hoverBorderColor:'#000'
+            }]
+        },
+        options:{
+            title:{
+            display:true,
+            text:"Nombre d'acords per regió (1990 - 2018)",
+            fontSize:20
+            },
+            legend:{
+            display:false,
+            position:'right',
+            labels:{
+                fontColor:'#000'
+            }
+            },
+            layout:{
+            padding:{
+                left:5,
+                right:0,
+                bottom:0,
+                top:0
+            }
+            },
+            tooltips:{
+            enabled:true
+            }
+        }
+        });
+
+    });
+
+    </script>
+
+
+</body>
+</html>
